@@ -1,0 +1,12 @@
+/etc/cron.d
+/etc/letsencrypt
+/etc/opt/rh/rh-nginx116/nginx/conf.d
+/etc/sudoers.d
+/etc/systemd/system/zabbix-agent2.service.d
+/etc/systemd/system/zabbix-server.service.d
+/etc/yum.repos.d
+/etc/zabbix
+/root/.ssh
+/usr/lib/zabbix
+/usr/share/snmp/mibs
+/usr/share/zabbix-pdf-report

@@ -1,0 +1,5 @@
+Cisco ASR 9910
+Cisco ASR-920-24SZ-M
+Cisco ASR1002
+Juniper MX 480
+Juniper PTX3000

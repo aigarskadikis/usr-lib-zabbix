@@ -1,0 +1,4 @@
+name,address,template,group,proxy
+SNMP device 1,192.168.56.1,Template Module Generic SNMPv2,Discovered hosts,first-proxy
+SNMP device 2,192.168.56.1,Template Module Generic SNMPv2,Linux servers;Virtual machines,second-proxy
+SNMP device 3,192.168.56.1,Template Module Generic SNMPv2,Linux servers;Virtual machines,NULL
