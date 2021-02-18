@@ -7,7 +7,7 @@
 /etc/profile.d/postgres.sh
 /etc/security/limits.conf
 /etc/selinux/config
-/etc/snmp/snmptrapd.conf
+/etc/ssh/ssh_config
 /etc/sysconfig/zabbix-agent2
 /etc/sysctl.conf
 /root/.bashrc
