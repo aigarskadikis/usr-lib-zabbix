@@ -49,38 +49,45 @@ for line in reader:
    # if proxy exists in instance then:
    if int(proxy_id)>0:
 
-     # get all templates. This will create a template array
+     # get all templates. This will create a template array of human readable names
      templates=line['template'].split(";")
 
-     # create an empty template ID array
+     # create an empty template ID array because we always operate with IDs
      templateIDarray=[]
-     
+    
+     # go through all template names 
      for template in templates:
 
        # get template ID and add it to array
        templateIDarray.append({"templateid":int(zapi.template.get({"filter" : {"name" : template}})[0]['templateid'])})
 
-     # get all host group IDs. This will create a host group array
+     # get all host group IDs. This will create a host group array with human readable names
      groups=line['group'].split(";")
      
-     hostGroupIDarray=[] 
+     # create a host group array. this is required to assign all host groups in one approach
+     hostGroupIDarray=[]
+
+     # go through all groups and validate if group exists in monitoring tool
      for hostGroup in groups:
-       # try to guery the host group ID. this will allow to understand do we need create new or not
+       # try to query the host group ID
        try:
         if zapi.hostgroup.get({"filter":{"name":hostGroup}})[0]['groupid']:
          try:
-          hostGroupID=zapi.hostgroup.get({"filter":{"name":hostGroup}})[0]['groupid']
-          hostGroupIDarray.append({"groupid":hostGroupID})
+          # if query was successfull then add this group ID in host group array
+          hostGroupIDarray.append({"groupid":zapi.hostgroup.get({"filter":{"name":hostGroup}})[0]['groupid']})
          except:
           print ("hello")
        except:
+        # if we failed to query host group ID, this is a sign we need to create it
         print("Host group '",hostGroup,"' does not exist. Will create now")
+        # assign a newly created host group ID to the host group array
         hostGroupIDarray.append({"groupid":zapi.hostgroup.create({"name":hostGroup})['groupids'][0]})
 
      # create a host based on it's type in table
      if line['type']=='ZBX':
        print ("Zabbix agent hosts must be registered through functionality of agent auto registration")
-
+ 
+     # if column represents an SNMP host
      if line['type']=='SNMP':
        hostid = zapi.host.create ({
                             "host":line['name'],
