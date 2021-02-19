@@ -65,7 +65,6 @@ for line in reader:
      
      hostGroupIDarray=[] 
      for hostGroup in groups:
-       print (hostGroup) 
        # try to guery the host group ID. this will allow to understand do we need create new or not
        try:
         if zapi.hostgroup.get({"filter":{"name":hostGroup}})[0]['groupid']:
@@ -75,7 +74,7 @@ for line in reader:
          except:
           print ("hello")
        except:
-        print(hostGroup," does not exist. will create now")
+        print("Host group '",hostGroup,"' does not exist. Will create now")
         hostGroupIDarray.append({"groupid":zapi.hostgroup.create({"name":hostGroup})['groupids'][0]})
 
      # create a host based on it's type in table
@@ -85,6 +84,7 @@ for line in reader:
      if line['type']=='SNMP':
        hostid = zapi.host.create ({
                             "host":line['name'],
+                            "name":line['visible'],
                             "interfaces":[{"type":2,"dns":"","main":1,"ip":line['address'],"port": 161,"useip": 1,
                             "details":{"version":"2","bulk":"1","community":line['snmpcommunity']}}],
                             "groups":hostGroupIDarray,
