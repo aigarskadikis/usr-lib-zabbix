@@ -80,13 +80,23 @@ for line in reader:
 
      print (hostGroupIDarray)
 
-     # crete a host an put hostid instantly in the 'hostid' variable
-     hostid = zapi.host.create ({
-        "host":line['name'],
-        "interfaces":[{"type":1,"dns":"","main":1,"ip": line['address'],"port": 10051,"useip": 1}],
-        "groups":hostGroupIDarray,
-        "proxy_hostid":proxy_id,
-        "templates":templateIDarray})['hostids']
+     # create a host based on it's type in table
+     if line['type']=='ZBX':
+       hostid = zapi.host.create ({
+                            "host":line['name'],
+                            "interfaces":[{"type":1,"dns":"","main":1,"ip": line['address'],"port": 10051,"useip": 1}],
+                            "groups":hostGroupIDarray,
+                            "proxy_hostid":proxy_id,
+                            "templates":templateIDarray})['hostids']
+
+     if line['type']=='SNMP':
+       hostid = zapi.host.create ({
+                            "host":line['name'],
+                            "interfaces":[{"type":2,"dns":"","main":1,"ip":line['address'],"port": 161,"useip": 1,
+                            "details":{"version":"2","bulk":"1","community":"{$SNMP_COMMUNITY}"}}],
+                            "groups":hostGroupIDarray,
+                            "proxy_hostid":proxy_id,
+                            "templates":templateIDarray})['hostids']
 
   # if there are no proxy
   else:

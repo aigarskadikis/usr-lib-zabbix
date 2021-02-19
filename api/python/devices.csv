@@ -1,2 +1,3 @@
-name,address,template,group,proxy
-fuble,127.0.0.1,t1;t2,hg one;hg two,samba
+name,address,type,template,group,proxy
+fuble,127.0.0.1,ZBX,t1;t2,hg one;hg two,samba
+esenempii,127.0.0.1,SNMP,Template SNMP Generic;Template SNMP Interfaces,hg3;hg4,broceni
