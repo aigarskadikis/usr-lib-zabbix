@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# install sudoers profile for tar
+# cd /etc/sudoers.d
+# echo 'zabbix ALL=(ALL) NOPASSWD: /usr/bin/tar -czvf /backup/*' | sudo tee zabbix_tar
+# chmod 0440 zabbix_tar
+
 # zabbix server or zabbix proxy for zabbix sender
 contact=127.0.0.1
 
@@ -48,7 +53,7 @@ echo -e "\nFilesystem backup"
 
 # sudo tar -cJf $filesystem/fs.conf.zabbix.tar.xz \
 sudo tar -czvf $filesystem/fs.conf.zabbix.tar.gz \
---files-from "${0%/*}/backup_zabbix_files.list" \
---files-from "${0%/*}/backup_zabbix_directories.list" \
+--files-from "/usr/lib/zabbix/backup/backup_zabbix_files.list" \
+--files-from "/usr/lib/zabbix/backup/backup_zabbix_directories.list" \
 /usr/bin/zabbix_* \
 $(grep zabbix /etc/passwd|cut -d: -f6)
