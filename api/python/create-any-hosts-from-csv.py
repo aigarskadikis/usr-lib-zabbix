@@ -64,24 +64,29 @@ for line in reader:
        # get template ID and add it to array
        templateIDarray.append({"templateid":int(zapi.template.get({"filter" : {"name" : template}})[0]['templateid'])})
 
-       # print array which will be used for bulks
-       print (templateIDarray)
+     # print array which will be used for bulks
+     print (templateIDarray)
 
      # get all host group IDs. This will create a host group array
      groups=line['group'].split(";")
      print (groups)
+     
+     hostGroupIDarray=[] 
+     for hostGroup in groups:
+       print (hostGroup)
+       
+       # get all host group IDs and put it in array. this is required so we can create a host with one command
+       hostGroupIDarray.append({"groupid":int(zapi.hostgroup.get({"filter":{"name":hostGroup}})[0]['groupid'])})
 
-     # take first group from group array
-     group_id = zapi.hostgroup.get({"filter" : {"name" : groups[0]}})[0]['groupid']
-     # take first template from template array
-     template_id = zapi.template.get({"filter" : {"name" : templates[0]}})[0]['templateid']
+     print (hostGroupIDarray)
 
      # crete a host an put hostid instantly in the 'hostid' variable
      hostid = zapi.host.create ({
-        "host":line['name'],"interfaces":[{"type":1,"dns":"","main":1,"ip": line['address'],"port": 10051,"useip": 1}],
-        "groups": [{ "groupid": group_id }],
+        "host":line['name'],
+        "interfaces":[{"type":1,"dns":"","main":1,"ip": line['address'],"port": 10051,"useip": 1}],
+        "groups":hostGroupIDarray,
         "proxy_hostid":proxy_id,
-        "templates":templateIDarray })['hostids']
+        "templates":templateIDarray})['hostids']
 
   # if there are no proxy
   else:
