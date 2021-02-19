@@ -62,7 +62,7 @@ for line in reader:
        print (template)
 
        # get template ID and add it to array
-       templateIDarray.append(int(zapi.template.get({"filter" : {"name" : template}})[0]['templateid']))
+       templateIDarray.append({"templateid":int(zapi.template.get({"filter" : {"name" : template}})[0]['templateid'])})
 
        # print array which will be used for bulks
        print (templateIDarray)
@@ -81,7 +81,7 @@ for line in reader:
         "host":line['name'],"interfaces":[{"type":1,"dns":"","main":1,"ip": line['address'],"port": 10051,"useip": 1}],
         "groups": [{ "groupid": group_id }],
         "proxy_hostid":proxy_id,
-        "templates": [{ "templateid": 12870 },{ "templateid": 12871 }]})['hostids']
+        "templates":templateIDarray })['hostids']
 
   # if there are no proxy
   else:
