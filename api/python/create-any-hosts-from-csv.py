@@ -65,9 +65,18 @@ for line in reader:
      
      hostGroupIDarray=[] 
      for hostGroup in groups:
-       
-       # get all host group IDs and put it in array. this is required so we can create a host with one command
-       hostGroupIDarray.append({"groupid":int(zapi.hostgroup.get({"filter":{"name":hostGroup}})[0]['groupid'])})
+       print (hostGroup) 
+       # try to guery the host group ID. this will allow to understand do we need create new or not
+       try:
+        if zapi.hostgroup.get({"filter":{"name":hostGroup}})[0]['groupid']:
+         try:
+          hostGroupID=zapi.hostgroup.get({"filter":{"name":hostGroup}})[0]['groupid']
+          hostGroupIDarray.append({"groupid":hostGroupID})
+         except:
+          print ("hello")
+       except:
+        print(hostGroup," does not exist. will create now")
+        hostGroupIDarray.append({"groupid":zapi.hostgroup.create({"name":hostGroup})['groupids'][0]})
 
      # create a host based on it's type in table
      if line['type']=='ZBX':
