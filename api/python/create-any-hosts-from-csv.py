@@ -64,6 +64,18 @@ for line in reader:
    else:
     print ("Template '"+str(line['template'])+"' does not exist. Will create it in moment but now need to ensure template group exists..")
 
+
+    # check if template 'Generic SNMP' exists
+    if zapi.template.get({"filter":{"host":"Generic SNMP"}}):
+
+     # if exists then pick up ID
+     genericSNMPID=zapi.template.get({"filter":{"host":"Generic SNMP"}})[0]['templateid']
+     print ("Generic SNMP ID:",genericSNMPID)
+
+    else:
+     print ("Template 'Generic SNMP' does not exist")
+
+
     # define template groups array
     templateGroupsIDarray=[]
 
@@ -81,7 +93,6 @@ for line in reader:
     print ("Creating now template..")
     newTemplateID=zapi.template.create({"host":line['template'],"groups":{"groupid":templateGroupsIDarray[0]}})['templateids'][0]
     print (newTemplateID)
-    
 
   # get all human readable host group names
   groups=line['group'].split(";")
@@ -130,10 +141,10 @@ for line in reader:
     # if proxy field is filled
     else:
 
-     # check if proxy exists
+     # try to understand if proxy exists
      if zapi.proxy.get({"output": "proxyid","selectInterface": "extend","filter":{"host":line['proxy']}}):
       
-      # if proxy exists, then extract exact proxy ID
+      # if previous query was successfull then proxy exists. now extract exact proxy ID
       proxy_id=zapi.proxy.get({"output": "proxyid","selectInterface": "extend","filter":{"host":line['proxy']}})[0]['proxyid']
 
       # create a host behind proxy
@@ -149,8 +160,8 @@ for line in reader:
      else:
       print ("Host '"+str(line['name'])+"' has not been created because proxy name '"+str(line['proxy'])+"' not found. Please create proxy")
 
-   else:
-    print ("Host '"+str(line['name'])+"' has not been created because not all templates exist in instance")
+#   else:
+#    print ("Host '"+str(line['name'])+"' has not been created because not all templates exist in instance")
 
  else:
    print ("Host '"+str(line['name'])+"' already exist")
