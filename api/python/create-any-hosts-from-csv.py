@@ -54,12 +54,25 @@ for line in reader:
 
      # create an empty template ID array because we always operate with IDs
      templateIDarray=[]
-    
+     
+     # create a flag to ensure all templates exist at instance:
+     templatesOK=True
+ 
      # go through all human readable template names 
      for template in templates:
 
-       # get template ID and add it to array
-       templateIDarray.append({"templateid":int(zapi.template.get({"filter" : {"name" : template}})[0]['templateid'])})
+       # query template name
+       if zapi.template.get({"filter" : {"name" : template}}):
+
+         # if query was successfull then template exists. extract exact template ID
+         templateID=int(zapi.template.get({"filter" : {"name" : template}})[0]['templateid'])
+         
+         # add templateID to template array:
+         templateIDarray.append({"templateid":templateID})
+   
+       else:
+         print ("Template not exists:", template,". Please create it in order to create host:",line['name'])
+         TemplatesOK=False
 
      # get all host group IDs. This will create a host group array with human readable names
      groups=line['group'].split(";")
@@ -93,7 +106,9 @@ for line in reader:
  
      # if column represents an SNMP host
      if line['type']=='SNMP':
-       hostid = zapi.host.create ({
+       # if all templates has been found in the instance then create host
+       if len(templates)==len(templateIDarray):
+         hostid = zapi.host.create ({
                             "host":line['name'],
                             "name":line['visible'],
                             "interfaces":[{"type":2,"dns":"","main":1,"ip":line['address'],"port": 161,"useip": 1,
@@ -101,6 +116,8 @@ for line in reader:
                             "groups":hostGroupIDarray,
                             "proxy_hostid":proxy_id,
                             "templates":templateIDarray})['hostids']
+       else:
+         print ("Cannot create host",line['name'],"because not all templates exist in instance")
 
  else:
    print (line['name'],"already exist")
