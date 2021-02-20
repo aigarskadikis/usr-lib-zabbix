@@ -49,7 +49,7 @@ for line in reader:
   # create an empty template ID array because we always operate with IDs
   templateIDarray=[]
 
-  # continue only if one solid template name has been given 
+  # continue only if one template template name is in CSV file
   if len(templates)==1:
 
    # check if this template already exists in instance
@@ -62,12 +62,13 @@ for line in reader:
     # hovever this is unified syntax if we need to work with multiple objects
    
    else:
-    print ("Template '"+str(line['template'])+"' does not exist. Will create it in moment but now need to ensure template group exists..")
+    print ("Template '"+str(line['template'])+"' does not exist..")
 
     # a master template can contain multiple child templates. Let's create an array of child templates
     templatesInsideMaster=[]    
 
     # check if template 'Generic SNMP' exists
+    print ("checking if 'Generic SNMP' exists")
     if zapi.template.get({"filter":{"host":"Generic SNMP"}}):
 
      # if exists then pick up ID
@@ -78,31 +79,33 @@ for line in reader:
     else:
      print ("Template 'Generic SNMP' does not exist")
 
-    # define template groups array
+    # define template groups array. an array is not really required, it can be a simple variabe too
+    # but just to keep unified syntax we will define array
     templateGroupsIDarray=[]
 
-    # get ID of template group 'Templates/Master'
+    # check if template 'Templates/Master' exists
     if zapi.hostgroup.get({"filter":{"host":"Templates/Master"}}):
 
-     # pick up 'Templates/Master' ID:
-     templatesGroupMasterID=int(zapi.hostgroup.get({"filter":{"name":["Templates/Master"]}})[0]['groupid'])
-     print ("Template group exists, ID:"+str(templatesGroupMasterID))
-     templateGroupsIDarray.append(templatesGroupMasterID)
+     # if previous step was successfull then template group exists. now extract exact template group id
+     templateGroupsIDarray.append(int(zapi.hostgroup.get({"filter":{"name":["Templates/Master"]}})[0]['groupid']))
 
     else:
      print ("group 'Templates/Master' does not exist. Will create it now..")
 
     print ("Creating now template..")
-    newTemplateID=zapi.template.create({
+
+    templateIDarray.append({"templateid":int(zapi.template.create({
                            "host":line['template'],
                            "groups":{"groupid":templateGroupsIDarray[0]},
-                           "templates":templatesInsideMaster})['templateids'][0]
-    print (newTemplateID)
+                           "templates":templatesInsideMaster})['templateids'][0])})
+#    print (newTemplateID)
+
+
 
   # get all human readable host group names
   groups=line['group'].split(";")
      
-  # create a host group array which will consist with IDs. this is required to assign all host groups in one approach
+  # create a host group array which will consist with IDs. this is required to assign all host groups in one API call
   hostGroupIDarray=[]
 
   # go through all human readable host group names and validate if group exists in monitoring tool
