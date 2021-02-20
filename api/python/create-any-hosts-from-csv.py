@@ -55,7 +55,7 @@ for line in reader:
      # create an empty template ID array because we always operate with IDs
      templateIDarray=[]
     
-     # go through all template names 
+     # go through all human readable template names 
      for template in templates:
 
        # get template ID and add it to array
@@ -69,19 +69,23 @@ for line in reader:
 
      # go through all groups and validate if group exists in monitoring tool
      for hostGroup in groups:
-       # try to query the host group ID
-       try:
-        if zapi.hostgroup.get({"filter":{"name":hostGroup}})[0]['groupid']:
-         try:
-          # if query was successfull then add this group ID in host group array
-          hostGroupIDarray.append({"groupid":zapi.hostgroup.get({"filter":{"name":hostGroup}})[0]['groupid']})
-         except:
-          print ("hello")
-       except:
-        # if we failed to query host group ID, this is a sign we need to create it
-        print("Host group '",hostGroup,"' does not exist. Will create now")
-        # assign a newly created host group ID to the host group array
-        hostGroupIDarray.append({"groupid":zapi.hostgroup.create({"name":hostGroup})['groupids'][0]})
+
+       # perform a test API call to identify if host group exists
+       if zapi.hostgroup.get({"filter":{"name":hostGroup}}):
+         
+         # if call was successful then locate what is exact host group ID
+         hostGroupID=int(zapi.hostgroup.get({"filter":{"name":hostGroup}})[0]['groupid'])
+
+         # add host group to host group array
+         hostGroupIDarray.append({"groupid":int(hostGroupID)})
+
+       else:
+         # let's create a new host group:
+         print("Host group '",hostGroup,"' does not exist. Will create now")
+         
+         # create a new host group and instantly extract houst group ID
+         # add host group ID to host group array
+         hostGroupIDarray.append({"groupid":zapi.hostgroup.create({"name":hostGroup})['groupids'][0]})
 
      # create a host based on it's type in table
      if line['type']=='ZBX':
