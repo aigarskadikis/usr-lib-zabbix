@@ -30,7 +30,7 @@ zapi.session.verify=False
 zapi.login(config.username, config.password)
 
 # open file from same directory where python code is placed
-file = open("devices.csv",'rt')
+file = open("/tmp/devices.csv",'rt')
 reader = csv.DictReader( file )
 
 # take the file and read line by line
@@ -91,14 +91,29 @@ for line in reader:
    # if all templates has been found in the instance then continue
    if len(templates)==len(templateIDarray):
     
-    # check if proxy exists
-    if zapi.proxy.get({"output": "proxyid","selectInterface": "extend","filter":{"host":line['proxy']}}):
+    # a special override condition if proxy name is empty then tris host will be attached directly to master server
+    if len(line['proxy'])==0:
      
-     # if proxy exists, then extract proxy ID
-     proxy_id=zapi.proxy.get({"output": "proxyid","selectInterface": "extend","filter":{"host":line['proxy']}})[0]['proxyid']
-
-     # create a host behind proxy
+     # create a host which is attached directly to master server (without zabbix proxy)
      hostid = zapi.host.create ({
+                            "host":line['name'],
+                            "name":line['visible'],
+                            "interfaces":[{"type":2,"dns":"","main":1,"ip":line['address'],"port": 161,"useip": 1,
+                            "details":{"version":"2","bulk":"1","community":line['snmpcommunity']}}],
+                            "groups":hostGroupIDarray,
+                            "templates":templateIDarray})['hostids']
+
+    # if proxy field is filled
+    else:
+
+     # check if proxy exists
+     if zapi.proxy.get({"output": "proxyid","selectInterface": "extend","filter":{"host":line['proxy']}}):
+      
+      # if proxy exists, then extract exact proxy ID
+      proxy_id=zapi.proxy.get({"output": "proxyid","selectInterface": "extend","filter":{"host":line['proxy']}})[0]['proxyid']
+
+      # create a host behind proxy
+      hostid = zapi.host.create ({
                             "host":line['name'],
                             "name":line['visible'],
                             "interfaces":[{"type":2,"dns":"","main":1,"ip":line['address'],"port": 161,"useip": 1,
@@ -107,13 +122,13 @@ for line in reader:
                             "proxy_hostid":proxy_id,
                             "templates":templateIDarray})['hostids']
 
-    else:
-     print ("Host '"+str(line['name'])+"' has not been created because proxy name '"+str(line['proxy'])+"' not found. Please create proxy")
+     else:
+      print ("Host '"+str(line['name'])+"' has not been created because proxy name '"+str(line['proxy'])+"' not found. Please create proxy")
 
    else:
     print ("Host '"+str(line['name'])+"' has not been created because not all templates exist in instance")
 
  else:
-   print ("host '"+str(line['name'])+"' already exist")
+   print ("Host '"+str(line['name'])+"' already exist")
 
 file.close()
