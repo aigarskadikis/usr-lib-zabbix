@@ -64,6 +64,8 @@ for line in reader:
    else:
     print ("Template '"+str(line['template'])+"' does not exist. Will create it in moment but now need to ensure template group exists..")
 
+    # a master template can contain multiple child templates. Let's create an array of child templates
+    templatesInsideMaster=[]    
 
     # check if template 'Generic SNMP' exists
     if zapi.template.get({"filter":{"host":"Generic SNMP"}}):
@@ -71,10 +73,10 @@ for line in reader:
      # if exists then pick up ID
      genericSNMPID=zapi.template.get({"filter":{"host":"Generic SNMP"}})[0]['templateid']
      print ("Generic SNMP ID:",genericSNMPID)
+     templatesInsideMaster.append({"templateid":genericSNMPID})
 
     else:
      print ("Template 'Generic SNMP' does not exist")
-
 
     # define template groups array
     templateGroupsIDarray=[]
@@ -91,7 +93,10 @@ for line in reader:
      print ("group 'Templates/Master' does not exist. Will create it now..")
 
     print ("Creating now template..")
-    newTemplateID=zapi.template.create({"host":line['template'],"groups":{"groupid":templateGroupsIDarray[0]}})['templateids'][0]
+    newTemplateID=zapi.template.create({
+                           "host":line['template'],
+                           "groups":{"groupid":templateGroupsIDarray[0]},
+                           "templates":templatesInsideMaster})['templateids'][0]
     print (newTemplateID)
 
   # get all human readable host group names
