@@ -40,13 +40,13 @@ reader = csv.DictReader( file )
 for line in reader:
  
  # check if this host exists in zabbix
- if not zapi.host.get({"filter":{"host" :line['name']}}):
-  print ("Host '"+str(line['name'])+"' is not yet registred. will register it now..")
+ if not zapi.host.get({"filter":{"host":line['address']}}):
+  print ("Host '"+str(line['address'])+"' is not yet registred. will register it now..")
 
   # get all templates. This will create a template array of human readable names
   templates=line['template'].split(";")
-
-  # create an empty template ID array because we always operate with IDs
+  
+  # create an empty template ID array because we always operate with IDs 
   templateIDarray=[]
 
   # continue only if one template template name is in CSV file
@@ -62,7 +62,7 @@ for line in reader:
     # hovever this is unified syntax if we need to work with multiple objects
    
    else:
-    print ("Template '"+str(line['template'])+"' does not exist..")
+    print ("Template '"+str(line['template'])+"' does not exist. checking all dependencies to create master template")
 
     # a master template can contain multiple child templates. Let's create an array of child templates
     templatesInsideMaster=[]    
@@ -91,22 +91,26 @@ for line in reader:
 
     else:
      print ("group 'Templates/Master' does not exist. Will create it now..")
+     
+     # TODO how to create a new master template
 
     print ("Creating a new master template '"+str(line['template'])+"'")
-
     templateIDarray.append({"templateid":int(zapi.template.create({
                            "host":line['template'],
                            "groups":{"groupid":templateGroupsIDarray[0]},
                            "templates":templatesInsideMaster})['templateids'][0])})
 
   # get all human readable host group names
+  print ("all groups:",line['group'])
   groups=line['group'].split(";")
-     
+
   # create a host group array which will consist with IDs. this is required to assign all host groups in one API call
   hostGroupIDarray=[]
-
+     
   # go through all human readable host group names and validate if group exists in monitoring tool
   for hostGroup in groups:
+  
+   print ("parsing HG:",hostGroup)
 
    # perform a test API call to identify if host group exists
    if zapi.hostgroup.get({"filter":{"name":hostGroup}}):
@@ -119,57 +123,48 @@ for line in reader:
     print("Host group '"+str(hostGroup)+"' does not exist. Will create it now..")
          
     # create new host group, instantly extract houst group ID and add it to host group ID array
-    hostGroupIDarray.append({"groupid":zapi.hostgroup.create({"name":hostGroup})['groupids'][0]})
+    hostGroupIDarray.append({"groupid":int(zapi.hostgroup.create({"name":hostGroup})['groupids'][0])})
 
-  # create a host based on it's type in table
-  if line['type']=='ZBX':
-   print ("Zabbix agent hosts must be registered through functionality of agent auto registration")
- 
-  # if column represents an SNMP host
-  if line['type']=='SNMP':
 
-   # if all templates has been found in the instance then continue
-   if len(templateIDarray)==1:
+  # if master template is persistent to instance
+  if len(templateIDarray)==1:
     
-    # a special override condition if proxy name is empty then tris host will be attached directly to master server
-    if len(line['proxy'])==0:
+   # a special override condition if proxy name is empty then tris host will be attached directly to master server
+   if len(line['proxy'])==0:
      
-     # create a host which is attached directly to master server (without zabbix proxy)
-     print ("creating a new host '"+str(line['name'])+"' behind proxy '"+str(line['proxy'])+"'")
-     hostid = zapi.host.create ({
-                            "host":line['name'],
-                            "name":line['visible'],
+    # create a host which is attached directly to master server (without zabbix proxy)
+    print ("creating a new host '"+str(line['name'])+"' behind proxy '"+str(line['proxy'])+"'")
+    hostid = zapi.host.create ({
+                            "host":line['address'],
+                            "name":line['name'],
                             "interfaces":[{"type":2,"dns":"","main":1,"ip":line['address'],"port": 161,"useip": 1,
                             "details":{"version":"2","bulk":"1","community":line['snmpcommunity']}}],
                             "groups":hostGroupIDarray,
                             "templates":templateIDarray})['hostids']
 
-    # if proxy field is filled
-    else:
+   # if proxy field is filled
+   else:
 
-     # try to understand if proxy exists
-     if zapi.proxy.get({"output": "proxyid","selectInterface": "extend","filter":{"host":line['proxy']}}):
+    # try to query proxy
+    if zapi.proxy.get({"output": "proxyid","selectInterface": "extend","filter":{"host":line['proxy']}}):
       
-      # if previous query was successfull then proxy exists. now extract exact proxy ID
-      proxy_id=zapi.proxy.get({"output": "proxyid","selectInterface": "extend","filter":{"host":line['proxy']}})[0]['proxyid']
+     # if previous query did not fail then pick up exact proxy ID
+     proxy_id=zapi.proxy.get({"output": "proxyid","selectInterface": "extend","filter":{"host":line['proxy']}})[0]['proxyid']
 
-      # create a host behind proxy
-      hostid = zapi.host.create ({
-                            "host":line['name'],
-                            "name":line['visible'],
+     # create a host behind proxy
+     hostid = zapi.host.create ({
+                            "host":line['address'],
+                            "name":line['name'],
                             "interfaces":[{"type":2,"dns":"","main":1,"ip":line['address'],"port": 161,"useip": 1,
                             "details":{"version":"2","bulk":"1","community":line['snmpcommunity']}}],
                             "groups":hostGroupIDarray,
                             "proxy_hostid":proxy_id,
                             "templates":templateIDarray})['hostids']
 
-     else:
-      print ("Host '"+str(line['name'])+"' has not been created because proxy name '"+str(line['proxy'])+"' not found. Please create proxy")
-
-#   else:
-#    print ("Host '"+str(line['name'])+"' has not been created because not all templates exist in instance")
+    else:
+     print ("Host '"+str(line['address'])+"' has not been created because proxy name '"+str(line['proxy'])+"' not found. Please create proxy")
 
  else:
-   print ("Host '"+str(line['name'])+"' already exist")
+   print ("Host '"+str(line['address'])+"' already exist")
 
 file.close()

@@ -1,3 +1,4 @@
-name,visible,address,type,snmpcommunity,template,group,proxy
-esenempii,esnemp,127.0.0.1,SNMP,public,Template SNMP Generic;Template SNMP Interfaces;non2temp,hg3;hg4,broceni
-next one,NextOna,127.0.0.1,SNMP,public,Template SNMP Generic;Template SNMP Interfaces,hg7;hg8,broceni
+name,address,snmpcommunity,template,group,proxy
+Storage at DC1,192.168.99.1,public,Cisco Storage POWERMAX 2000,Cisco;Storage team,broceni
+Master switch at DC2,192.168.88.1,public,Cisco SAN Switch MDS-9396T-POD,Cisco;Cisco Switch;Network team,kaste
+Core switch at Location3,192.168.77.1,public,Dell Switch R640,Dell;Switch;Dell switch;Network team,proxy2
