@@ -38,7 +38,7 @@ for line in reader:
  
  # check if this host exists in zabbix
  if not zapi.host.get({"filter":{"host" :line['name']}}):
-  print (line['name'],"not yet registred. will register now")
+  print ("Host '"+str(line['name'])+"' is not yet registred. will register it now..")
 
   # get all templates. This will create a template array of human readable names
   templates=line['template'].split(";")
@@ -50,14 +50,14 @@ for line in reader:
   for template in templates:
 
    # query template name
-   if zapi.template.get({"filter" : {"name" : template}}):
+   if zapi.template.get({"filter":{"name":template}}):
 
     # if query did not fail then template exist in the instance
     # extract exact template ID and put it template ID array
-    templateIDarray.append({"templateid":int(zapi.template.get({"filter" : {"name" : template}})[0]['templateid'])})
+    templateIDarray.append({"templateid":int(zapi.template.get({"filter":{"name":template}})[0]['templateid'])})
    
    else:
-    print ("Please create template '",template,"' in order to create host '",line['name'],"'")
+    print ("Template '"+str(template)+"' does not exist. Please create it in order to create host '"+str(line['name'])+"'")
 
   # get all human readable host group names
   groups=line['group'].split(";")
@@ -76,7 +76,7 @@ for line in reader:
 
    else:
     # let's create a new host group:
-    print("Host group '",hostGroup,"' does not exist. Will create now")
+    print("Host group '"+str(hostGroup)+"' does not exist. Will create it now..")
          
     # create new host group, instantly extract houst group ID and add it to host group ID array
     hostGroupIDarray.append({"groupid":zapi.hostgroup.create({"name":hostGroup})['groupids'][0]})
@@ -108,10 +108,10 @@ for line in reader:
                             "templates":templateIDarray})['hostids']
 
     else:
-     print ("cannot create host '"+str(line['name'])+"' because proxy name '"+str(line['proxy'])+"' not found. please create it")
+     print ("Host '"+str(line['name'])+"' has not been created because proxy name '"+str(line['proxy'])+"' not found. Please create proxy")
 
    else:
-    print ("cannot create host '"+str(line['name'])+"' because not all templates exist in instance")
+    print ("Host '"+str(line['name'])+"' has not been created because not all templates exist in instance")
 
  else:
    print ("host '"+str(line['name'])+"' already exist")
