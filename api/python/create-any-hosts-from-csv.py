@@ -68,12 +68,12 @@ for line in reader:
     templatesInsideMaster=[]    
 
     # check if template 'Generic SNMP' exists
-    print ("checking if 'Generic SNMP' exists")
     if zapi.template.get({"filter":{"host":"Generic SNMP"}}):
 
      # if exists then pick up ID
      genericSNMPID=zapi.template.get({"filter":{"host":"Generic SNMP"}})[0]['templateid']
-     print ("Generic SNMP ID:",genericSNMPID)
+     
+     # an 'templateid' attribute is mandatory
      templatesInsideMaster.append({"templateid":genericSNMPID})
 
     else:
@@ -92,15 +92,12 @@ for line in reader:
     else:
      print ("group 'Templates/Master' does not exist. Will create it now..")
 
-    print ("Creating now template..")
+    print ("Creating a new master template '"+str(line['template'])+"'")
 
     templateIDarray.append({"templateid":int(zapi.template.create({
                            "host":line['template'],
                            "groups":{"groupid":templateGroupsIDarray[0]},
                            "templates":templatesInsideMaster})['templateids'][0])})
-#    print (newTemplateID)
-
-
 
   # get all human readable host group names
   groups=line['group'].split(";")
@@ -138,6 +135,7 @@ for line in reader:
     if len(line['proxy'])==0:
      
      # create a host which is attached directly to master server (without zabbix proxy)
+     print ("creating a new host '"+str(line['name'])+"' behind proxy '"+str(line['proxy'])+"'")
      hostid = zapi.host.create ({
                             "host":line['name'],
                             "name":line['visible'],
