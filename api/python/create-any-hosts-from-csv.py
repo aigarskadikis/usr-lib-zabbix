@@ -4,6 +4,9 @@
 # this code will aggregate all host group IDs
 # and template IDs so only one host.create command needs to be executed
 
+# for best management it's suggested that a one device can have only one master template
+# this allows us to install all exceptions in template, avoide to install exceptions at host level
+
 # python3 required
 # dnf install python3-pip
 # pip3 install zabbix_api
@@ -45,19 +48,40 @@ for line in reader:
 
   # create an empty template ID array because we always operate with IDs
   templateIDarray=[]
-     
-  # go through all human readable template names 
-  for template in templates:
 
-   # query template name
-   if zapi.template.get({"filter":{"name":template}}):
+  # continue only if one solid template name has been given 
+  if len(templates)==1:
+
+   # check if this template already exists in instance
+   if zapi.template.get({"filter":{"name":line['template']}}):
 
     # if query did not fail then template exist in the instance
     # extract exact template ID and put it template ID array
-    templateIDarray.append({"templateid":int(zapi.template.get({"filter":{"name":template}})[0]['templateid'])})
+    templateIDarray.append({"templateid":int(zapi.template.get({"filter":{"name":line['template']}})[0]['templateid'])})
+    # it is silly to create an array which will always consist with one element
+    # hovever this is unified syntax if we need to work with multiple objects
    
    else:
-    print ("Template '"+str(template)+"' does not exist. Please create it in order to create host '"+str(line['name'])+"'")
+    print ("Template '"+str(line['template'])+"' does not exist. Will create it in moment but now need to ensure template group exists..")
+
+    # define template groups array
+    templateGroupsIDarray=[]
+
+    # get ID of template group 'Templates/Master'
+    if zapi.hostgroup.get({"filter":{"host":"Templates/Master"}}):
+
+     # pick up 'Templates/Master' ID:
+     templatesGroupMasterID=int(zapi.hostgroup.get({"filter":{"name":["Templates/Master"]}})[0]['groupid'])
+     print ("Template group exists, ID:"+str(templatesGroupMasterID))
+     templateGroupsIDarray.append(templatesGroupMasterID)
+
+    else:
+     print ("group 'Templates/Master' does not exist. Will create it now..")
+
+    print ("Creating now template..")
+    newTemplateID=zapi.template.create({"host":line['template'],"groups":{"groupid":templateGroupsIDarray[0]}})['templateids'][0]
+    print (newTemplateID)
+    
 
   # get all human readable host group names
   groups=line['group'].split(";")
@@ -89,7 +113,7 @@ for line in reader:
   if line['type']=='SNMP':
 
    # if all templates has been found in the instance then continue
-   if len(templates)==len(templateIDarray):
+   if len(templateIDarray)==1:
     
     # a special override condition if proxy name is empty then tris host will be attached directly to master server
     if len(line['proxy'])==0:
