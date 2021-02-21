@@ -101,7 +101,6 @@ for line in reader:
                            "templates":templatesInsideMaster})['templateids'][0])})
 
   # get all human readable host group names
-  print ("all groups:",line['group'])
   groups=line['group'].split(";")
 
   # create a host group array which will consist with IDs. this is required to assign all host groups in one API call
@@ -110,8 +109,6 @@ for line in reader:
   # go through all human readable host group names and validate if group exists in monitoring tool
   for hostGroup in groups:
   
-   print ("parsing HG:",hostGroup)
-
    # perform a test API call to identify if host group exists
    if zapi.hostgroup.get({"filter":{"name":hostGroup}}):
          
@@ -162,7 +159,7 @@ for line in reader:
                             "templates":templateIDarray})['hostids']
 
     else:
-     print ("Host '"+str(line['address'])+"' has not been created because proxy name '"+str(line['proxy'])+"' not found. Please create proxy")
+     print ("Host '"+str(line['address'])+"' has not been created because proxy name '"+str(line['proxy'])+"' not found")
 
  else:
    print ("Host '"+str(line['address'])+"' already exist")
