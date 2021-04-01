@@ -55,10 +55,9 @@ ACTION_ID=$(curl -s -X POST \
 # if the action id is not empty then this action exsits
 # must execute extra condition
 if [ ! -z $ACTION_ID ]; then
-echo $ACTION_ID
 
 # delete this action
-curl -s -X POST \
+DEL_ACTION_OUT=$(curl -s -X POST \
 -H 'Content-Type: application/json-rpc' \
 -d " \
 {
@@ -70,9 +69,8 @@ curl -s -X POST \
     \"auth\": \"$auth\",
     \"id\": 1
 }
-" $url
+" $url)
 fi
-echo
 
 # create an empty filter conditions. this is required to add multiple hosts in pool
 FILTER_CONDITIONS_TAGS=""
@@ -82,7 +80,6 @@ if [ -f $ACTIONNAME.tags.txt ]
 then
 cat $ACTIONNAME.tags.txt | while IFS= read -r TAG
 do {
-echo $TAG
 FILTER_CONDITIONS_TAGS+="{\"conditiontype\":25,\"operator\":0,\"value\":\"$TAG\"},"
 echo "$FILTER_CONDITIONS_TAGS" | sed "s|.$||" > /tmp/FILTER_CONDITIONS_TAGS.txt
 } done
@@ -117,7 +114,6 @@ curl -s -X POST \
 
 # only if the hostid has been found, then include it in pool
 if [ ! -z $HOST_ID_TO_INCLUE ]; then
-echo "$HOST_ID_TO_INCLUE"
 FILTER_CONDITIONS_HOSTS+="{\"conditiontype\":1,\"operator\":0,\"value\":\"$HOST_ID_TO_INCLUE\"},"
 echo "$FILTER_CONDITIONS_HOSTS" | sed "s|.$||" > /tmp/FILTER_CONDITIONS_HOSTS.txt
 fi
@@ -157,12 +153,10 @@ MEDIA_ID_FOR_EXISTING_EMAIL=$(echo "$ALL_USERS_AND_MEDIA" | jq -r ".result[] | s
 
 # if user with this email was found
 if [ ! -z "$USER_ID_FOR_EXISTING_EMAIL" ]; then
-echo "UserID: $USER_ID_FOR_EXISTING_EMAIL"
 OPMESSAGE_USR+="{\"userid\":\"$USER_ID_FOR_EXISTING_EMAIL\"},"
 echo "$OPMESSAGE_USR" | sed "s|.$||" > /tmp/OPMESSAGE_USR.txt
-echo "MediaID: $MEDIA_ID_FOR_EXISTING_EMAIL"
 else
-echo email $EMAIL has not been assigned to any user
+echo "\"$ACTIONNAME\" incomplete because email \"$EMAIL\" not assigned to any user"
 fi
 
 } done
@@ -172,7 +166,7 @@ fi
 if [ -f /tmp/OPMESSAGE_USR.txt ]; then
 if [ ! -z "$(cat /tmp/OPMESSAGE_USR.txt)" ]; then
 # recreate action while containing all hosts in pool
-curl -s -X POST \
+CREATE_ACTION=$(curl -s -X POST \
 -H 'Content-Type: application/json-rpc' \
 -d " \
 {
@@ -221,27 +215,23 @@ $(cat /tmp/OPMESSAGE_USR.txt)
     \"auth\": \"$auth\",
     \"id\": 1
 }
-" $url
-echo
+" $url)
+echo "\"$ACTIONNAME\" created"
 
 else
-echo no emails found assigned to users:
-cat $ACTIONNAME.emails.txt
+echo "\"$ACTIONNAME\" not created because emails in file \"$ACTIONNAME.emails.txt\" are not assigned to any users"
 fi
 
 else
-echo no emails found at all:
-cat $ACTIONNAME.emails.txt 
+echo "\"$ACTIONNAME\" not created because emails in file \"$ACTIONNAME.emails.txt\" are not assigned to any users:"
 fi
 
 else
-echo cannot create action $ACTIONNAME because none of the hosts has been found in instance:
-cat $ACTIONNAME.hosts.txt
+echo "\"$ACTIONNAME\" was not created because hosts in file \"$ACTIONNAME.hosts.txt\" does not exist"
 fi
 
 else
-echo cannot create action $ACTIONNAME because none of the hosts has been found in instance:
-cat $ACTIONNAME.hosts.txt
+echo "\"$ACTIONNAME\" was not created because hosts in file \"$ACTIONNAME.hosts.txt\" does not exist"
 fi
 
 [[ -f /tmp/FILTER_CONDITIONS_HOSTS.txt ]] && rm /tmp/FILTER_CONDITIONS_HOSTS.txt
