@@ -117,7 +117,7 @@ curl -s -X POST \
         \"name\": \"$ACTIONNAME\",
         \"eventsource\": 0,
         \"status\": 0,
-        \"esc_period\": \"2m\",
+        \"esc_period\": \"1h\",
         \"def_shortdata\": \"{TRIGGER.NAME}: {TRIGGER.STATUS}\",
         \"def_longdata\": \"{TRIGGER.NAME}: {TRIGGER.STATUS}\r\nLast value: {ITEM.LASTVALUE}\r\n\r\n{TRIGGER.URL}\",
         \"filter\": {
@@ -131,7 +131,7 @@ $(cat /tmp/FILTER_CONDITIONS.txt)
                 \"operationtype\": 0,
                 \"esc_period\": \"0s\",
                 \"esc_step_from\": 1,
-                \"esc_step_to\": 2,
+                \"esc_step_to\": 1,
                 \"evaltype\": 0,
                 \"opmessage_grp\": [
                     {
@@ -142,28 +142,6 @@ $(cat /tmp/FILTER_CONDITIONS.txt)
                     \"default_msg\": 1,
                     \"mediatypeid\": \"1\"
                 }
-            },
-            {
-                \"operationtype\": 1,
-                \"esc_step_from\": 3,
-                \"esc_step_to\": 4,
-                \"evaltype\": 0,
-                \"opconditions\": [
-                    {
-                        \"conditiontype\": 14,
-                        \"operator\": 0,
-                        \"value\": \"0\"
-                    }
-                ],
-                \"opcommand_grp\": [
-                    {
-                        \"groupid\": \"2\"
-                    }
-                ],
-                \"opcommand\": {
-                    \"type\": 4,
-                    \"scriptid\": \"3\"
-                }
             }
         ],
         \"recovery_operations\": [
@@ -173,15 +151,6 @@ $(cat /tmp/FILTER_CONDITIONS.txt)
                     \"default_msg\": 1
                 }
             }    
-        ],
-        \"acknowledge_operations\": [
-            {
-                \"operationtype\": \"12\",
-                \"opmessage\": {
-                    \"message\": \"Custom acknowledge operation message body\",
-                    \"subject\": \"Custom acknowledge operation message subject\"
-                }
-            }
         ]
     },
     \"auth\": \"$auth\",
