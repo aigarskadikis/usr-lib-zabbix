@@ -220,12 +220,12 @@ cat $ACTIONNAME.emails.txt
 fi
 
 else
-echo none of the hosts has been found in instance:
+echo cannot create action $ACTIONNAME because none of the hosts has been found in instance:
 cat $ACTIONNAME.hosts.txt
 fi
 
 else
-echo no FILTER_CONDITIONS.txt . it means none of the hosts has been found:
+echo cannot create action $ACTIONNAME because none of the hosts has been found in instance:
 cat $ACTIONNAME.hosts.txt
 fi
 
