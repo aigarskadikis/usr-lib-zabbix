@@ -66,12 +66,38 @@ curl -s -X POST \
     \"id\": 1
 }
 " $url
-
 fi
+# read content of txt file to create a new action with the host titles
+cat $ACTIONNAME.txt | while IFS= read -r HOST_NAME
+do {
+# query host id
+HOST_ID_TO_INCLUE=$(
+curl -s -X POST \
+-H 'Content-Type: application/json-rpc' \
+-d " \
+{
+    \"jsonrpc\": \"2.0\",
+    \"method\": \"host.get\",
+    \"params\": {
+        \"output\": [\"hostid\"],
+        \"filter\": {
+            \"host\": [
+                \"$HOST_NAME\"
+            ]
+        }
+    },
+    \"auth\": \"$auth\",
+    \"id\": 2
+}
+" $url | jq -r '.result[].hostid'
+)
+echo "$HOST_ID_TO_INCLUE"
+} done
+
 } done
 
 # 4. logout user
-curl -s -X POST \
+LOG_OUT=$(curl -s -X POST \
 -H 'Content-Type: application/json-rpc' \
 -d " \
 {
@@ -81,5 +107,5 @@ curl -s -X POST \
     \"id\": 1,
     \"auth\": \"$auth\"
 }
-" $url
+" $url)
 
