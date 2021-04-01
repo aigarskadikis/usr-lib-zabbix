@@ -75,7 +75,20 @@ fi
 echo
 
 # create an empty filter conditions. this is required to add multiple hosts in pool
-FILTER_CONDITIONS=""
+FILTER_CONDITIONS_TAGS=""
+
+# if tags are required
+if [ -f $ACTIONNAME.tags.txt ]
+then
+cat $ACTIONNAME.tags.txt | while IFS= read -r TAG
+do {
+echo $TAG
+FILTER_CONDITIONS_TAGS+="{\"conditiontype\":25,\"operator\":0,\"value\":\"$TAG\"},"
+echo "$FILTER_CONDITIONS_TAGS" | sed "s|.$||" > /tmp/FILTER_CONDITIONS_TAGS.txt
+} done
+fi
+
+FILTER_CONDITIONS_HOSTS=""
 
 # read content of txt file to create a new action with the host titles
 cat $ACTIONNAME.hosts.txt | while IFS= read -r HOST_NAME
@@ -105,23 +118,23 @@ curl -s -X POST \
 # only if the hostid has been found, then include it in pool
 if [ ! -z $HOST_ID_TO_INCLUE ]; then
 echo "$HOST_ID_TO_INCLUE"
-FILTER_CONDITIONS+="{\"conditiontype\":1,\"operator\":0,\"value\":\"$HOST_ID_TO_INCLUE\"},"
-echo "$FILTER_CONDITIONS" | sed "s|.$||" > /tmp/FILTER_CONDITIONS.txt
+FILTER_CONDITIONS_HOSTS+="{\"conditiontype\":1,\"operator\":0,\"value\":\"$HOST_ID_TO_INCLUE\"},"
+echo "$FILTER_CONDITIONS_HOSTS" | sed "s|.$||" > /tmp/FILTER_CONDITIONS_HOSTS.txt
 fi
 
 } done
 
 # check if any host has been found in instance
-if [ -f "/tmp/FILTER_CONDITIONS.txt" ]; then
+if [ -f "/tmp/FILTER_CONDITIONS_HOSTS.txt" ]; then
 
 
-if [ ! -z "$(cat /tmp/FILTER_CONDITIONS.txt)" ]; then
+if [ ! -z "$(cat /tmp/FILTER_CONDITIONS_HOSTS.txt)" ]; then
 
 # empty user array to deliver emails
 OPMESSAGE_USR=""
 
 # extract userID and mediatype ID for to understand where to deliver email
-cat $ACTIONNAME.emails.txt | while IFS= read -r EMAIL
+cat $ACTIONNAME.emails.txt | while IFS= read -r EMAIL 
 do {
 ALL_USERS_AND_MEDIA=$(curl -s -X POST \
 -H 'Content-Type: application/json-rpc' \
@@ -175,7 +188,9 @@ curl -s -X POST \
         \"filter\": {
             \"evaltype\": 0,
             \"conditions\": [
-$(cat /tmp/FILTER_CONDITIONS.txt)
+$(cat /tmp/FILTER_CONDITIONS_TAGS.txt)
+$( [[ ! -z "$(cat /tmp/FILTER_CONDITIONS_TAGS.txt)" ]] && echo , )
+$(cat /tmp/FILTER_CONDITIONS_HOSTS.txt)
             ]
         },
         \"operations\": [
@@ -229,7 +244,8 @@ echo cannot create action $ACTIONNAME because none of the hosts has been found i
 cat $ACTIONNAME.hosts.txt
 fi
 
-[[ -f /tmp/FILTER_CONDITIONS.txt ]] && rm /tmp/FILTER_CONDITIONS.txt
+[[ -f /tmp/FILTER_CONDITIONS_HOSTS.txt ]] && rm /tmp/FILTER_CONDITIONS_HOSTS.txt
+[[ -f /tmp/FILTER_CONDITIONS_TAGS.txt ]] && rm /tmp/FILTER_CONDITIONS_TAGS.txt
 [[ -f /tmp/OPMESSAGE_USR.txt ]] && rm /tmp/OPMESSAGE_USR.txt
 
 } done
