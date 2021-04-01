@@ -1,9 +1,12 @@
 #!/bin/bash
 
 # 1. set connection details
-url=http://127.0.0.1:152/api_jsonrpc.php
-user=Admin
-password=zabbix
+# url=http://127.0.0.1:152/api_jsonrpc.php
+# user=Admin
+# password=zabbix
+url=$1
+user=$2
+password=$3
 
 # 2. get authorization token
 auth=$(curl -s -X POST \
