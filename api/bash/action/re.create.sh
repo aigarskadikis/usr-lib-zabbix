@@ -23,11 +23,11 @@ auth=$(curl -s -X POST \
 jq -r '.result'
 )
 
-
+# start a loop to query names of all txt in current directory
 ls -1 *.txt | sed 's|.txt||' | while IFS= read -r ACTIONNAME
 do {
-
-curl -s -X POST \
+# check if this action name is already persistant in instance
+ACTION_ID=$(curl -s -X POST \
 -H 'Content-Type: application/json-rpc' \
 -d " \
 {
@@ -46,8 +46,30 @@ curl -s -X POST \
     \"auth\": \"$auth\",
     \"id\": 1
 }
-" $url | jq -r ".result[] | select (.name == \"$ACTIONNAME\") | .actionid"
+" $url | jq -r ".result[] | select (.name == \"$ACTIONNAME\") | .actionid")
+# if the action id is not empty then this action exsits
+# must execute extra condition
+if [ ! -z $ACTION_ID ]; then
+echo $ACTION_ID
+
+# delete this action
+curl -s -X POST \
+-H 'Content-Type: application/json-rpc' \
+-d " \
+{
+    \"jsonrpc\": \"2.0\",
+    \"method\": \"action.delete\",
+    \"params\": [
+        \"$ACTION_ID\"
+    ],
+    \"auth\": \"$auth\",
+    \"id\": 1
+}
+" $url
+
+fi
 } done
+
 # 4. logout user
 curl -s -X POST \
 -H 'Content-Type: application/json-rpc' \
