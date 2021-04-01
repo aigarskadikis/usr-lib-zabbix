@@ -106,6 +106,34 @@ fi
 
 } done
 
+# extract userID and mediatype ID for to understand where to deliver email
+cat $ACTIONNAME.emails.txt | while IFS= read -r EMAIL
+do {
+
+ALL_USERS_AND_MEDIA=$(curl -s -X POST \
+-H 'Content-Type: application/json-rpc' \
+-d " \
+{
+    \"jsonrpc\": \"2.0\",
+    \"method\": \"user.get\",
+    \"params\": {
+        \"output\": [\"medias\"],
+        \"selectMedias\": \"extend\"
+    },
+    \"auth\": \"$auth\",
+    \"id\": 1
+}
+" $url)
+# userid found
+USER_ID_FOR_EXISTING_EMAIL=$(echo "$ALL_USERS_AND_MEDIA" | jq -r ".result[] | select (.medias[].sendto[] == \"hello.world@gmail.com\") | .medias[].userid")
+
+MEDIA_ID_FOR_EXISTING_EMAIL=$(echo "$ALL_USERS_AND_MEDIA" | jq -r ".result[] | select (.medias[].sendto[] == \"hello.world@gmail.com\") | .medias[].mediaid")
+
+echo "UserID: $USER_ID_FOR_EXISTING_EMAIL"
+echo "MediaID: $MEDIA_ID_FOR_EXISTING_EMAIL"
+
+} done
+
 # recreate action while containing all hosts in pool
 curl -s -X POST \
 -H 'Content-Type: application/json-rpc' \
