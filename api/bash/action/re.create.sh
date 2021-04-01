@@ -9,7 +9,7 @@ user=$2
 password=$3
 
 [[ -z "$1" ]] && echo "must provide api url, username, password like:
-./recreate \"http://127.0.0.1/api_jsonrpc.php\" Admin zabbix
+./re.create.sh \"http://127.0.0.1/api_jsonrpc.php\" Admin zabbix
 " && exit 1 
 
 # 2. get authorization token
