@@ -24,7 +24,7 @@ jq -r '.result'
 )
 
 # start a loop to query names of all txt in current directory
-ls -1 *.txt | sed 's|.txt||' | while IFS= read -r ACTIONNAME
+ls -1 *.hosts.txt | sed 's|.hosts.txt||' | while IFS= read -r ACTIONNAME
 do {
 # check if this action name is already persistant in instance
 ACTION_ID=$(curl -s -X POST \
@@ -67,12 +67,13 @@ curl -s -X POST \
 }
 " $url
 fi
+echo
 
 # create an empty filter conditions. this is required to add multiple hosts in pool
 FILTER_CONDITIONS=""
 
 # read content of txt file to create a new action with the host titles
-cat $ACTIONNAME.txt | while IFS= read -r HOST_NAME
+cat $ACTIONNAME.hosts.txt | while IFS= read -r HOST_NAME
 do {
 # query host id
 HOST_ID_TO_INCLUE=$(
@@ -104,7 +105,6 @@ echo "$FILTER_CONDITIONS" | sed "s|.$||" > /tmp/FILTER_CONDITIONS.txt
 fi
 
 } done
-cat /tmp/FILTER_CONDITIONS.txt
 
 # recreate action while containing all hosts in pool
 curl -s -X POST \
@@ -129,13 +129,13 @@ $(cat /tmp/FILTER_CONDITIONS.txt)
         \"operations\": [
             {
                 \"operationtype\": 0,
-                \"esc_period\": \"0s\",
+                \"esc_period\": \"0\",
                 \"esc_step_from\": 1,
                 \"esc_step_to\": 1,
                 \"evaltype\": 0,
-                \"opmessage_grp\": [
+                \"opmessage_usr\": [
                     {
-                        \"usrgrpid\": \"7\"
+                        \"userid\": \"3\"
                     }
                 ],
                 \"opmessage\": {
@@ -157,6 +157,7 @@ $(cat /tmp/FILTER_CONDITIONS.txt)
     \"id\": 1
 }
 " $url
+echo
 
 } done
 
