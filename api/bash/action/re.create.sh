@@ -147,6 +147,8 @@ fi
 
 } done
 
+# check if there were some emails detected
+if [ ! -z "$(cat /tmp/OPMESSAGE_USR.txt)"]; then
 # recreate action while containing all hosts in pool
 curl -s -X POST \
 -H 'Content-Type: application/json-rpc' \
@@ -197,6 +199,11 @@ $(cat /tmp/OPMESSAGE_USR.txt)
 }
 " $url
 echo
+
+else
+echo no emails found at all:
+cat $ACTIONNAME.emails.txt 
+fi
 
 } done
 
