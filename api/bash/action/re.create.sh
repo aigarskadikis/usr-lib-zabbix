@@ -147,8 +147,9 @@ fi
 
 } done
 
-# check if there were some emails detected
-if [ ! -z "$(cat /tmp/OPMESSAGE_USR.txt)"]; then
+# check if file exists and if it exists theni
+# check if some content is inside
+[[ -f /tmp/OPMESSAGE_USR.txt ]] && if [ ! -z "$(cat /tmp/OPMESSAGE_USR.txt)"]; then
 # recreate action while containing all hosts in pool
 curl -s -X POST \
 -H 'Content-Type: application/json-rpc' \
