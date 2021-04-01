@@ -132,10 +132,15 @@ USER_ID_FOR_EXISTING_EMAIL=$(echo "$ALL_USERS_AND_MEDIA" | jq -r ".result[] | se
 
 MEDIA_ID_FOR_EXISTING_EMAIL=$(echo "$ALL_USERS_AND_MEDIA" | jq -r ".result[] | select (.medias[].sendto[] == \"$EMAIL\") | .medias[].mediaid")
 
+# if user with this email was found
+if [ ! -z "$USER_ID_FOR_EXISTING_EMAIL" ]; then
 echo "UserID: $USER_ID_FOR_EXISTING_EMAIL"
 OPMESSAGE_USR+="{\"userid\":\"$USER_ID_FOR_EXISTING_EMAIL\"},"
 echo "$OPMESSAGE_USR" | sed "s|.$||" > /tmp/OPMESSAGE_USR.txt
 echo "MediaID: $MEDIA_ID_FOR_EXISTING_EMAIL"
+else
+echo email $EMAIL has not been assigned to any user
+fi
 
 } done
 
