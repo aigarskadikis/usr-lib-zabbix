@@ -147,9 +147,12 @@ fi
 
 } done
 
+# check if any host has been found in instance
+[[ -f /tmp/FILTER_CONDITIONS.txt ]] && if [ ! -z "$(cat /tmp/FILTER_CONDITIONS.txt)" ]; then
+
 # check if file exists and if it exists theni
 # check if some content is inside
-[[ -f /tmp/OPMESSAGE_USR.txt ]] && if [ ! -z "$(cat /tmp/OPMESSAGE_USR.txt)"]; then
+[[ -f /tmp/OPMESSAGE_USR.txt ]] && if [ ! -z "$(cat /tmp/OPMESSAGE_USR.txt)" ]; then
 # recreate action while containing all hosts in pool
 curl -s -X POST \
 -H 'Content-Type: application/json-rpc' \
@@ -204,6 +207,11 @@ echo
 else
 echo no emails found at all:
 cat $ACTIONNAME.emails.txt 
+fi
+
+else
+echo none of the hosts has been found in instance:
+cat $ACTIONNAME.hosts.txt
 fi
 
 } done
