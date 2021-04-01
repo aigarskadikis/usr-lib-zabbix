@@ -67,6 +67,10 @@ curl -s -X POST \
 }
 " $url
 fi
+
+# create an empty filter conditions. this is required to add multiple hosts in pool
+FILTER_CONDITIONS=""
+
 # read content of txt file to create a new action with the host titles
 cat $ACTIONNAME.txt | while IFS= read -r HOST_NAME
 do {
@@ -91,8 +95,99 @@ curl -s -X POST \
 }
 " $url | jq -r '.result[].hostid'
 )
+
+# only if the hostid has been found, then include it in pool
+if [ ! -z $HOST_ID_TO_INCLUE ]; then
 echo "$HOST_ID_TO_INCLUE"
+FILTER_CONDITIONS+="{\"conditiontype\":1,\"operator\":0,\"value\":\"$HOST_ID_TO_INCLUE\"},"
+echo "$FILTER_CONDITIONS" | sed "s|.$||" > /tmp/FILTER_CONDITIONS.txt
+fi
+
 } done
+cat /tmp/FILTER_CONDITIONS.txt
+
+# recreate action while containing all hosts in pool
+curl -s -X POST \
+-H 'Content-Type: application/json-rpc' \
+-d " \
+{
+    \"jsonrpc\": \"2.0\",
+    \"method\": \"action.create\",
+    \"params\": {
+        \"name\": \"$ACTIONNAME\",
+        \"eventsource\": 0,
+        \"status\": 0,
+        \"esc_period\": \"2m\",
+        \"def_shortdata\": \"{TRIGGER.NAME}: {TRIGGER.STATUS}\",
+        \"def_longdata\": \"{TRIGGER.NAME}: {TRIGGER.STATUS}\r\nLast value: {ITEM.LASTVALUE}\r\n\r\n{TRIGGER.URL}\",
+        \"filter\": {
+            \"evaltype\": 0,
+            \"conditions\": [
+$(cat /tmp/FILTER_CONDITIONS.txt)
+            ]
+        },
+        \"operations\": [
+            {
+                \"operationtype\": 0,
+                \"esc_period\": \"0s\",
+                \"esc_step_from\": 1,
+                \"esc_step_to\": 2,
+                \"evaltype\": 0,
+                \"opmessage_grp\": [
+                    {
+                        \"usrgrpid\": \"7\"
+                    }
+                ],
+                \"opmessage\": {
+                    \"default_msg\": 1,
+                    \"mediatypeid\": \"1\"
+                }
+            },
+            {
+                \"operationtype\": 1,
+                \"esc_step_from\": 3,
+                \"esc_step_to\": 4,
+                \"evaltype\": 0,
+                \"opconditions\": [
+                    {
+                        \"conditiontype\": 14,
+                        \"operator\": 0,
+                        \"value\": \"0\"
+                    }
+                ],
+                \"opcommand_grp\": [
+                    {
+                        \"groupid\": \"2\"
+                    }
+                ],
+                \"opcommand\": {
+                    \"type\": 4,
+                    \"scriptid\": \"3\"
+                }
+            }
+        ],
+        \"recovery_operations\": [
+            {
+                \"operationtype\": \"11\",
+                \"opmessage\": {
+                    \"default_msg\": 1
+                }
+            }    
+        ],
+        \"acknowledge_operations\": [
+            {
+                \"operationtype\": \"12\",
+                \"opmessage\": {
+                    \"message\": \"Custom acknowledge operation message body\",
+                    \"subject\": \"Custom acknowledge operation message subject\"
+                }
+            }
+        ]
+    },
+    \"auth\": \"$auth\",
+    \"id\": 1
+}
+" $url
 
 } done
 
