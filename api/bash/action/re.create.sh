@@ -8,6 +8,8 @@ url=$1
 user=$2
 password=$3
 
+[[ -z "$1" ]] && echo "must provide api url, username, password" && exit 1 
+
 # 2. get authorization token
 auth=$(curl -s -X POST \
 -H 'Content-Type: application/json-rpc' \
@@ -109,13 +111,18 @@ fi
 
 } done
 
+# check if any host has been found in instance
+if [ -f "/tmp/FILTER_CONDITIONS.txt" ]; then
+
+
+if [ ! -z "$(cat /tmp/FILTER_CONDITIONS.txt)" ]; then
+
 # empty user array to deliver emails
 OPMESSAGE_USR=""
 
 # extract userID and mediatype ID for to understand where to deliver email
 cat $ACTIONNAME.emails.txt | while IFS= read -r EMAIL
 do {
-
 ALL_USERS_AND_MEDIA=$(curl -s -X POST \
 -H 'Content-Type: application/json-rpc' \
 -d " \
@@ -147,13 +154,9 @@ fi
 
 } done
 
-# check if any host has been found in instance
-[[ -f /tmp/FILTER_CONDITIONS.txt ]] && \
-if [ ! -z "$(cat /tmp/FILTER_CONDITIONS.txt)" ]; then
-
 # check if file exists and if it exists theni
 # check if some content is inside
-[[ -f /tmp/OPMESSAGE_USR.txt ]] && \
+if [ -f /tmp/OPMESSAGE_USR.txt ]; then
 if [ ! -z "$(cat /tmp/OPMESSAGE_USR.txt)" ]; then
 # recreate action while containing all hosts in pool
 curl -s -X POST \
@@ -207,6 +210,11 @@ $(cat /tmp/OPMESSAGE_USR.txt)
 echo
 
 else
+echo no emails found assigned to users:
+cat $ACTIONNAME.emails.txt
+fi
+
+else
 echo no emails found at all:
 cat $ACTIONNAME.emails.txt 
 fi
@@ -216,8 +224,13 @@ echo none of the hosts has been found in instance:
 cat $ACTIONNAME.hosts.txt
 fi
 
-rm /tmp/FILTER_CONDITIONS.txt
-rm /tmp/OPMESSAGE_USR.txt
+else
+echo no FILTER_CONDITIONS.txt . it means none of the hosts has been found:
+cat $ACTIONNAME.hosts.txt
+fi
+
+[[ -f /tmp/FILTER_CONDITIONS.txt ]] && rm /tmp/FILTER_CONDITIONS.txt
+[[ -f /tmp/OPMESSAGE_USR.txt ]] && rm /tmp/OPMESSAGE_USR.txt
 
 } done
 
