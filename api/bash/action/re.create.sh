@@ -23,7 +23,9 @@ auth=$(curl -s -X POST \
 jq -r '.result'
 )
 
-echo $auth
+
+ls -1 *.txt | sed 's|.txt||' | while IFS= read -r ACTIONNAME
+do {
 
 curl -s -X POST \
 -H 'Content-Type: application/json-rpc' \
@@ -44,8 +46,8 @@ curl -s -X POST \
     \"auth\": \"$auth\",
     \"id\": 1
 }
-" $url | jq -r '.result[] | select (.name == "Trigger action") | .actionid'
-
+" $url | jq -r ".result[] | select (.name == \"$ACTIONNAME\") | .actionid"
+} done
 # 4. logout user
 curl -s -X POST \
 -H 'Content-Type: application/json-rpc' \
