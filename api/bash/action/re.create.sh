@@ -44,7 +44,7 @@ curl -s -X POST \
     \"auth\": \"$auth\",
     \"id\": 1
 }
-" $url | jq '.result[].name'
+" $url | jq -r '.result[] | select (.name == "Trigger action") | .actionid'
 
 # 4. logout user
 curl -s -X POST \
