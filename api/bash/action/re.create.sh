@@ -106,6 +106,9 @@ fi
 
 } done
 
+# empty user array to deliver emails
+OPMESSAGE_USR=""
+
 # extract userID and mediatype ID for to understand where to deliver email
 cat $ACTIONNAME.emails.txt | while IFS= read -r EMAIL
 do {
@@ -125,11 +128,13 @@ ALL_USERS_AND_MEDIA=$(curl -s -X POST \
 }
 " $url)
 # userid found
-USER_ID_FOR_EXISTING_EMAIL=$(echo "$ALL_USERS_AND_MEDIA" | jq -r ".result[] | select (.medias[].sendto[] == \"hello.world@gmail.com\") | .medias[].userid")
+USER_ID_FOR_EXISTING_EMAIL=$(echo "$ALL_USERS_AND_MEDIA" | jq -r ".result[] | select (.medias[].sendto[] == \"$EMAIL\") | .medias[].userid")
 
-MEDIA_ID_FOR_EXISTING_EMAIL=$(echo "$ALL_USERS_AND_MEDIA" | jq -r ".result[] | select (.medias[].sendto[] == \"hello.world@gmail.com\") | .medias[].mediaid")
+MEDIA_ID_FOR_EXISTING_EMAIL=$(echo "$ALL_USERS_AND_MEDIA" | jq -r ".result[] | select (.medias[].sendto[] == \"$EMAIL\") | .medias[].mediaid")
 
 echo "UserID: $USER_ID_FOR_EXISTING_EMAIL"
+OPMESSAGE_USR+="{\"userid\":\"$USER_ID_FOR_EXISTING_EMAIL\"},"
+echo "$OPMESSAGE_USR" | sed "s|.$||" > /tmp/OPMESSAGE_USR.txt
 echo "MediaID: $MEDIA_ID_FOR_EXISTING_EMAIL"
 
 } done
@@ -162,9 +167,7 @@ $(cat /tmp/FILTER_CONDITIONS.txt)
                 \"esc_step_to\": 1,
                 \"evaltype\": 0,
                 \"opmessage_usr\": [
-                    {
-                        \"userid\": \"3\"
-                    }
+$(cat /tmp/OPMESSAGE_USR.txt)                
                 ],
                 \"opmessage\": {
                     \"default_msg\": 1,
