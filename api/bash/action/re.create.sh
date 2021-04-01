@@ -8,7 +8,9 @@ url=$1
 user=$2
 password=$3
 
-[[ -z "$1" ]] && echo "must provide api url, username, password" && exit 1 
+[[ -z "$1" ]] && echo "must provide api url, username, password like:
+./recreate \"http://127.0.0.1/api_jsonrpc.php\" Admin zabbix
+" && exit 1 
 
 # 2. get authorization token
 auth=$(curl -s -X POST \
