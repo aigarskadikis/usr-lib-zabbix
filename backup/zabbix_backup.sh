@@ -51,9 +51,20 @@ xz $mysql/data.sql
 
 echo -e "\nFilesystem backup"
 
-# sudo tar -cJf $filesystem/fs.conf.zabbix.tar.xz \
 sudo tar -czvf $filesystem/fs.conf.zabbix.tar.gz \
 --files-from "/usr/lib/zabbix/backup/backup_zabbix_files.list" \
 --files-from "/usr/lib/zabbix/backup/backup_zabbix_directories.list" \
 /usr/bin/zabbix_* \
 $(grep zabbix /etc/passwd|cut -d: -f6)
+
+# remove older files than 30 days
+echo -e "\nThese files will be deleted:"
+find /backup -type f -mtime +30
+# delete files
+find /backup -type f -mtime +30 -delete
+
+echo -e "\nRemoving empty directories:"
+find /backup -type d -empty -print
+# delete empty directories
+find /backup -type d -empty -print -delete
+
