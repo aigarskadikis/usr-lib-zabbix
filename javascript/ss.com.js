@@ -26,7 +26,7 @@ do {
 step++;
 
 // start from page1
-url = "https://www.ss.com/lv/electronics/computers/game-consoles/page"+step+".html"
+url = "https://www.ss.com/lv/electronics/computers/game-consoles/sell/page"+step+".html"
 // the loop will end when the "Next" button goes to first page
 
 // print URL on screen
@@ -62,13 +62,17 @@ var row = {};
 // extract Nth element and put it on URL
 row["{#URL}"] = 'https://www.ss.com'+msgs[i];
 
+//var single = req.Get(row["{#URL}"]);
+
+
+
 // add this to array
 lld.push(row);
 
 }
 
 // practically in goes untill the "Next" button on the last page does not work (it redirects to page1)
-endOfList = resp.match(/game.consoles...N.kamie/gm) ? 1 : 0;
+endOfList = resp.match(/game.consoles.sell...N.kamie/gm) ? 1 : 0;
 
 }
 
