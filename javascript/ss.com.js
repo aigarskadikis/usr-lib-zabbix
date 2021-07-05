@@ -62,9 +62,13 @@ var row = {};
 // extract Nth element and put it on URL
 row["{#URL}"] = 'https://www.ss.com'+msgs[i];
 
-//var single = req.Get(row["{#URL}"]);
+var single = req.Get(row["{#URL}"]);
+row["{#PRICE}"] = single.match(/MSG_PRICE = ([0-9\.]+)/)[1];
+Zabbix.Log(3,row["{#PRICE}"]);
 
-
+// type
+row["{#TYPE}"] = single.match(/tdo_1649..nowrap.([a-zA-Z0-9 ]+)/)[1];
+Zabbix.Log(3,row["{#TYPE}"]);
 
 // add this to array
 lld.push(row);
