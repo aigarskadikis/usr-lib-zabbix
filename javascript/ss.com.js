@@ -60,7 +60,7 @@ for (i = 0; i < elements; i++) {
 var row = {};
 
 // extract Nth element and put it on URL
-row["{#URL}"] = 'https://www.ss.com/'+msgs[i];
+row["{#URL}"] = 'https://www.ss.com'+msgs[i];
 
 // add this to array
 lld.push(row);
