@@ -68,7 +68,6 @@ for ITEM in $(
 echo "$LLDIDS"
 )
 do
-echo $ITEM
 
 # extract the type of item to understand if it's passive or active
 # we can execute "Check now" only for passive items
@@ -88,8 +87,7 @@ curl -ks -X POST \
 }
 " $url | jq -r .result[].type
 )
-echo "$TYPE"
-
+echo
 # if type is passive then execute discovery. Here all all types:
 # 0, ITEM_TYPE_ZABBIX - Zabbix agent
 # 2, ITEM_TYPE_TRAPPER - Zabbix trapper
