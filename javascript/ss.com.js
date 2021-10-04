@@ -30,7 +30,7 @@ url = "https://www.ss.com/lv/electronics/computers/game-consoles/sell/page"+step
 // the loop will end when the "Next" button goes to first page
 
 // print URL on screen
-// Zabbix.Log(3,url);
+Zabbix.Log(3,url);
 
 // clear variable
 var resp = "";
@@ -39,7 +39,7 @@ var resp = "";
 resp = req.Get(url);
 
 // print URL on screen only on debug level 4
-// Zabbix.Log(4,resp);
+Zabbix.Log(4,resp);
 
 // if there is some content on page the examine links
 if (!endOfList) {
@@ -51,7 +51,7 @@ var msgs = resp.match(/(\/msg[a-zA-Z0-9_\-\.\/:]+\.html)/gm)
 elements = msgs.length;
 
 // print count of elements to log
-// Zabbix.Log(3,elements);
+Zabbix.Log(3,elements);
 
 // go tgrough loop to feed JSON array
 for (i = 0; i < elements; i++) {
@@ -61,13 +61,18 @@ var row = {};
 
 // extract Nth element and put it on URL
 row["{#URL}"] = 'https://www.ss.com'+msgs[i];
+Zabbix.Log(3,row["{#URL}"]);
 
 var single = req.Get(row["{#URL}"]);
 row["{#PRICE}"] = single.match(/MSG_PRICE = ([0-9\.]+)/)[1];
 Zabbix.Log(3,row["{#PRICE}"]);
 
 // type
-row["{#TYPE}"] = single.match(/tdo_1649..nowrap.([a-zA-Z0-9 ]+)/)[1];
+if (single.match(/tdo_1649..nowrap.([a-zA-Z0-9 ]+)/)) {
+	row["{#TYPE}"] = single.match(/tdo_1649..nowrap.([a-zA-Z0-9 ]+)/)[1];
+} else {
+	row["{#TYPE}"] = "";
+}
 Zabbix.Log(3,row["{#TYPE}"]);
 
 // add this to array

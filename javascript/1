@@ -1,0 +1,69 @@
+*   Trying 194.105.56.170...
+* TCP_NODELAY set
+* Connected to www.ss.com (194.105.56.170) port 443 (#0)
+* ALPN, offering h2
+* ALPN, offering http/1.1
+* successfully set certificate verify locations:
+*   CAfile: /etc/pki/tls/certs/ca-bundle.crt
+  CApath: none
+} [5 bytes data]
+* TLSv1.3 (OUT), TLS handshake, Client hello (1):
+} [512 bytes data]
+* TLSv1.3 (IN), TLS handshake, Server hello (2):
+{ [102 bytes data]
+* TLSv1.2 (IN), TLS handshake, Certificate (11):
+{ [4439 bytes data]
+* TLSv1.2 (IN), TLS handshake, Server key exchange (12):
+{ [333 bytes data]
+* TLSv1.2 (IN), TLS handshake, Server finished (14):
+{ [4 bytes data]
+* TLSv1.2 (OUT), TLS handshake, Client key exchange (16):
+} [70 bytes data]
+* TLSv1.2 (OUT), TLS change cipher, Change cipher spec (1):
+} [1 bytes data]
+* TLSv1.2 (OUT), TLS handshake, Finished (20):
+} [16 bytes data]
+* TLSv1.2 (IN), TLS handshake, Finished (20):
+{ [16 bytes data]
+* SSL connection using TLSv1.2 / ECDHE-RSA-AES128-GCM-SHA256
+* ALPN, server accepted to use h2
+* Server certificate:
+*  subject: CN=*.ss.com
+*  start date: May 30 00:00:00 2020 GMT
+*  expire date: Jul 21 23:59:59 2021 GMT
+*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA
+*  SSL certificate verify ok.
+* Using HTTP2, server supports multi-use
+* Connection state changed (HTTP/2 confirmed)
+* Copying HTTP/2 data in stream buffer to connection buffer after upgrade: len=0
+} [5 bytes data]
+* Using Stream ID: 1 (easy handle 0x559a3abdf460)
+} [5 bytes data]
+> GET /en/real-estate/flats/riga/plyavnieki/sell/page111.html HTTP/2
+> Host: www.ss.com
+> User-Agent: curl/7.61.1
+> Accept: */*
+> 
+{ [5 bytes data]
+* Connection state changed (MAX_CONCURRENT_STREAMS == 128)!
+} [5 bytes data]
+< HTTP/2 302 
+< server: nginx
+< date: Tue, 06 Jul 2021 08:50:13 GMT
+< content-type: text/html; charset=UTF-8
+< p3p: CP="NOI ADM DEV PSAi COM NAV OUR OTRo STP IND DEM"
+< set-cookie: PHPSESSID=fa389cc7612579da15032945a5316083; path=/; SameSite=none; Secure
+< expires: Thu, 19 Nov 1981 08:52:00 GMT
+< cache-control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+< pragma: no-cache
+< set-cookie: LG=en; expires=Wed, 06-Jul-2022 08:50:13 GMT; path=/; domain=www.ss.com; SameSite=none; secure;
+< location: /real-estate/flats/riga/plyavnieki/sell/
+< strict-transport-security: max-age=63072000; includeSubdomains; preload
+< 
+{ [0 bytes data]
+* Connection #0 to host www.ss.com left intact
+* Rebuilt URL to: 2/
+*   Trying 0.0.0.2...
+* TCP_NODELAY set
+* Immediate connect fail for 0.0.0.2: Invalid argument
+* Closing connection 1
