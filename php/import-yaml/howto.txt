@@ -1,0 +1,1 @@
+curl -sk -X POST -H "Content-Type: application/json" -d "$(php import_template.php 85379f5390aae2304836640fe9a8dd07 template_os_windows_snmp.yaml)" http://158.101.218.248:160/api_jsonrpc.php

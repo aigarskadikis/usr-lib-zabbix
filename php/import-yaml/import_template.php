@@ -1,4 +1,5 @@
-<?php   // usage: php thisfile.php apiauth /path/to/yaml/file.yaml
+<?php
+// usage: php thisfile.php apiauth /path/to/yaml/file.yaml
 [, $auth, $path, $id] = $argv + array_fill(0, 4, '');
 $auth !== '' or die('Define api key'.PHP_EOL);
 ($path !== '' && file_exists($path)) or die("Incorrect path $path".PHP_EOL);
