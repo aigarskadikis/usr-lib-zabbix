@@ -10,7 +10,13 @@ echo json_encode([
         'format' => 'yaml',
         'rules' => [
             'templates' => ['createMissing' => true, 'updateExisting' => true],
+            'groups' => ['createMissing' => true, 'updateExisting' => true],
             'items' => ['createMissing' => true, 'updateExisting' => true, 'deleteMissing' => false],
+            'httptests' => ['createMissing' => true, 'updateExisting' => true, 'deleteMissing' => false],
+            'triggers' => ['createMissing' => true, 'updateExisting' => true, 'deleteMissing' => false],
+            'discoveryRules' => ['createMissing' => true, 'updateExisting' => true, 'deleteMissing' => false],
+            'graphs' => ['createMissing' => true, 'updateExisting' => true, 'deleteMissing' => false],
+            'templateDashboards' => ['createMissing' => true, 'updateExisting' => true, 'deleteMissing' => false],
             'valueMaps' => ['createMissing' => true, 'updateExisting' => true, 'deleteMissing' => false]
         ],
         'source' => file_get_contents($path)
