@@ -23,16 +23,16 @@ $request = json_encode([
     'params' => [
         'format' => 'yaml',
         'rules' => [
-            'groups' => ['createMissing' => true, 'updateExisting' => true],
-            'templates' => ['createMissing' => true, 'updateExisting' => true],
-            'valueMaps' => ['createMissing' => true, 'updateExisting' => true, 'deleteMissing' => true],
-            'templateDashboards' => ['createMissing' => true, 'updateExisting' => true, 'deleteMissing' => true],
+            'groups' => ['updateExisting' => true, 'createMissing' => true],
+            'templates' => ['updateExisting' => true, 'createMissing' => true],
+            'valueMaps' => ['updateExisting' => true, 'createMissing' => true, 'deleteMissing' => true],
+            'templateDashboards' => ['updateExisting' => true, 'createMissing' => true, 'deleteMissing' => true],
             'templateLinkage' => ['createMissing' => true, 'deleteMissing' => true],
-            'items' => ['createMissing' => true, 'updateExisting' => true, 'deleteMissing' => true],
-            'discoveryRules' => ['createMissing' => true, 'updateExisting' => true, 'deleteMissing' => true],
-            'triggers' => ['createMissing' => true, 'updateExisting' => true, 'deleteMissing' => true],
-            'graphs' => ['createMissing' => true, 'updateExisting' => true, 'deleteMissing' => true],
-            'httptests' => ['createMissing' => true, 'updateExisting' => true, 'deleteMissing' => true]
+            'items' => ['updateExisting' => true, 'createMissing' => true, 'deleteMissing' => true],
+            'discoveryRules' => ['updateExisting' => true, 'createMissing' => true, 'deleteMissing' => true],
+            'triggers' => ['updateExisting' => true, 'createMissing' => true, 'deleteMissing' => true],
+            'graphs' => ['updateExisting' => true, 'createMissing' => true, 'deleteMissing' => true],
+            'httptests' => ['updateExisting' => true, 'createMissing' => true, 'deleteMissing' => true]
         ],
         'source' => file_get_contents($path)
     ],

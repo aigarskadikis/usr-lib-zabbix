@@ -23,16 +23,16 @@ $request = json_encode([
     'params' => [
         'format' => 'yaml',
         'rules' => [
-            'groups' => ['createMissing' => true, 'updateExisting' => true],
-            'templates' => ['createMissing' => true, 'updateExisting' => true],
-            'valueMaps' => ['createMissing' => true, 'updateExisting' => true, 'deleteMissing' => false],
-            'templateDashboards' => ['createMissing' => true, 'updateExisting' => true, 'deleteMissing' => false],
+            'groups' => ['updateExisting' => true, 'createMissing' => true],
+            'templates' => ['updateExisting' => true, 'createMissing' => true],
+            'valueMaps' => ['updateExisting' => true, 'createMissing' => true, 'deleteMissing' => false],
+            'templateDashboards' => ['updateExisting' => true, 'createMissing' => true, 'deleteMissing' => false],
             'templateLinkage' => ['createMissing' => true, 'deleteMissing' => false],
-            'items' => ['createMissing' => true, 'updateExisting' => true, 'deleteMissing' => false],
-            'discoveryRules' => ['createMissing' => true, 'updateExisting' => true, 'deleteMissing' => false],
-            'triggers' => ['createMissing' => true, 'updateExisting' => true, 'deleteMissing' => false],
-            'graphs' => ['createMissing' => true, 'updateExisting' => true, 'deleteMissing' => false],
-            'httptests' => ['createMissing' => true, 'updateExisting' => true, 'deleteMissing' => false]
+            'items' => ['updateExisting' => true, 'createMissing' => true, 'deleteMissing' => false],
+            'discoveryRules' => ['updateExisting' => true, 'createMissing' => true, 'deleteMissing' => false],
+            'triggers' => ['updateExisting' => true, 'createMissing' => true, 'deleteMissing' => false],
+            'graphs' => ['updateExisting' => true, 'createMissing' => true, 'deleteMissing' => false],
+            'httptests' => ['updateExisting' => true, 'createMissing' => true, 'deleteMissing' => false]
         ],
         'source' => file_get_contents($path)
     ],

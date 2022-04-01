@@ -60,7 +60,13 @@ function api(string $method, array $params = [], string $api_url = null) {
 			'method'  => 'POST',
 			'header'  => 'Content-Type: application/json',
 			'content' => json_encode($request)
-	]]));
+		],
+		'ssl' => [
+			'allow_self_signed'	=> true,
+			'verify_peer'		=> false,
+			'verify_peer_name'	=> false
+		]
+	]));
 	$response = json_decode($response, true);
 
 	if ($method === 'user.login') {
