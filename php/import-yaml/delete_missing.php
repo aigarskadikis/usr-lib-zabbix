@@ -45,7 +45,11 @@ $response = file_get_contents($api_url, false, stream_context_create([
 			'method'  => 'POST',
 			'header'  => 'Content-Type: application/json',
 			'content' => $request
-	]]));
+	],'ssl' => [
+                        'allow_self_signed'     => true,
+                        'verify_peer'           => false,
+                        'verify_peer_name'      => false
+                ]]));
 
 $response = json_decode($response, true);
 
