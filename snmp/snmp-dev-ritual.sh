@@ -1,3 +1,4 @@
+#!/bin/bash
 
 ##############################################################
 # Zabbix SNMP template DEV scenario
@@ -9,11 +10,13 @@ WORKDIR=/usr/lib/zabbix/snmp
 MIB=SOCOMECUPS-MIB-6-20
 ENTERPRISES=1.3.6.1.4.1.4555
 API_JSONRPC=https://zabbix.aigarskadikis.com/api_jsonrpc.php
-SID=64659f1aa207b62a1bac86a4385435ba
+SID=$(cat ~/.sid)
+HOSTID=13555
 IP=10.100.0.16
+HOST_NAME="Net Vision"
 PORT=161
 # GET INTERFACE ID
-curl --silent --insecure --request POST --header 'Content-Type: application/json-rpc' --data '{"jsonrpc": "2.0","method": "hostinterface.get","params": {"output": ["interfaceid"],"hostids": "13555","filter": {"main": "1","port": "161"}},"auth": "64659f1aaf07b61a1bac86a4385435ba","id": 1}' https://zabbix.aigarskadikis.com/api_jsonrpc.php | jq -r .result[0].interfaceid
+INTERFACEID=$(curl --silent --insecure --request POST --header 'Content-Type: application/json-rpc' --data "{\"jsonrpc\":\"2.0\",\"method\":\"hostinterface.get\",\"params\":{\"output\":[\"interfaceid\"],\"hostids\":\"$HOSTID\",\"filter\":{\"main\":\"1\",\"port\":\"161\"}},\"auth\":\"$SID\",\"id\":1}" $API_JSONRPC | jq -r .result[0].interfaceid)
 
 # get 'snmpwalk' command working
 snmpwalk -c'public' -v'2c' $IP:$PORT .
@@ -44,7 +47,6 @@ snmptranslate -Tz -m ./$MIB | grep Status | grep -Eo "1\.3\.6\.[0-9.]+"
 # value_type = integer
 echo "1.3.6.1.4.1.4555.1.1.1.1.4.1"
 
-cd $WORKDIR && snmptranslate -Tz -m ./$MIB | grep -E "$ENTERPRISES.[0-9.]+"
 
 cd $WORKDIR && snmptranslate -Tz -m ./$MIB | grep Status | grep -Eo "$ENTERPRISES.[0-9.]+" | while IFS= read -r OID
 do {
@@ -74,10 +76,10 @@ curl --silent --insecure --request POST --header 'Content-Type: application/json
 \"key_\": \".$OID.0\",
 \"description\": \"$OIDDESCRIPTION\",
 \"snmp_oid\": \"$OID.0\",
-\"hostid\": \"13555\",
+\"hostid\": \"$HOSTID\",
 \"type\": 20,
 \"value_type\": 3,
-\"interfaceid\": \"2299\",
+\"interfaceid\": \"$INTERFACEID\",
 \"valuemapid\":\"$VALUE_MAP_ID\",
 \"delay\": \"30s\"
 },
@@ -89,4 +91,108 @@ echo "VALUE_MAP_ID is $VALUE_MAP_ID"
 } done
 zabbix_server -R config_cache_reload
 
+
+##############################################################
+# SNMP traps - trap description contains keyword SEVERE
+# SNMP traps - automaticallt generate trigger if trap description contains keyword 'SEVERE'
+##############################################################
+
+
+cd $WORKDIR && snmptranslate -Tz -m ./$MIB | grep Trap | grep -Eo "$ENTERPRISES.[0-9.]+" | while IFS= read -r OID
+do {
+OIDNAME=$(snmptranslate -m ./$MIB .$OID) && \
+OID_ESC=$(echo .$OID | sed 's|\.|\\\\.|g') && \
+OIDDESCRIPTION=$(snmptranslate -m ./$MIB .$OID -Td | tr -d '\n' | sed 's|^.*DESCRIPTION\s*||' | sed -e's/  */ /g' | sed 's|^\d034||' | sed 's|\d034.*$||') && \
+echo $OIDDESCRIPTION | grep "SEVERE" && \
+echo $OIDNAME && \
+echo $OID && \
+echo \"key_\": \"snmptrap[\\\"\\\\s$OID_ESC\\\\s\\\"]\", && \
+curl --silent --insecure --request POST --header 'Content-Type: application/json-rpc' --data "
+{
+\"jsonrpc\": \"2.0\",
+\"method\": \"item.create\",
+\"params\": {
+\"name\": \"$OIDNAME\",
+\"key_\": \"snmptrap[\\\"\\\\s$OID_ESC\\\\s\\\"]\",
+\"description\": \"$OIDDESCRIPTION\",
+\"hostid\": \"$HOSTID\",
+\"type\": 17,
+\"value_type\": 2,
+\"interfaceid\": \"$INTERFACEID\",
+\"delay\": \"30s\"
+},
+\"auth\": \"$SID\",
+\"id\": 1
+}
+" $API_JSONRPC | jq . && \
+curl --silent --insecure --request POST --header 'Content-Type: application/json-rpc' --data "
+{
+    \"jsonrpc\": \"2.0\",
+    \"method\": \"trigger.create\",
+    \"params\": [
+        {
+            \"description\": \"$(echo "$OIDDESCRIPTION" | sed 's|SEVERE: ||;s|.$||')\",
+            \"expression\": \"{$HOST_NAME:snmptrap[\\\"\\\\s$OID_ESC\\\\s\\\"].nodata(1d)}=0\",
+			\"priority\":\"4\"
+        }
+    ],
+\"auth\": \"$SID\",
+    \"id\": 1
+}
+" $API_JSONRPC | jq . && \
+echo
+} done
+
+
+
+##############################################################
+# SNMP traps - trap description contains keyword WARNING
+# SNMP traps - automaticallt generate trigger if trap description contains keyword 'WARNING'
+##############################################################
+
+
+cd $WORKDIR && snmptranslate -Tz -m ./$MIB | grep Trap | grep -Eo "$ENTERPRISES.[0-9.]+" | while IFS= read -r OID
+do {
+OIDNAME=$(snmptranslate -m ./$MIB .$OID) && \
+OID_ESC=$(echo .$OID | sed 's|\.|\\\\.|g') && \
+OIDDESCRIPTION=$(snmptranslate -m ./$MIB .$OID -Td | tr -d '\n' | sed 's|^.*DESCRIPTION\s*||' | sed -e's/  */ /g' | sed 's|^\d034||' | sed 's|\d034.*$||') && \
+echo $OIDDESCRIPTION | grep "WARNING" && \
+echo $OIDNAME && \
+echo $OID && \
+echo \"key_\": \"snmptrap[\\\"\\\\s$OID_ESC\\\\s\\\"]\", && \
+curl --silent --insecure --request POST --header 'Content-Type: application/json-rpc' --data "
+{
+\"jsonrpc\": \"2.0\",
+\"method\": \"item.create\",
+\"params\": {
+\"name\": \"$OIDNAME\",
+\"key_\": \"snmptrap[\\\"\\\\s$OID_ESC\\\\s\\\"]\",
+\"description\": \"$OIDDESCRIPTION\",
+\"hostid\": \"$HOSTID\",
+\"type\": 17,
+\"value_type\": 2,
+\"interfaceid\": \"$INTERFACEID\",
+\"delay\": \"30s\"
+},
+\"auth\": \"$SID\",
+\"id\": 1
+}
+" $API_JSONRPC | jq . && \
+curl --silent --insecure --request POST --header 'Content-Type: application/json-rpc' --data "
+{
+    \"jsonrpc\": \"2.0\",
+    \"method\": \"trigger.create\",
+    \"params\": [
+        {
+            \"description\": \"$(echo "$OIDDESCRIPTION" | sed 's|WARNING: ||;s|.$||')\",
+            \"expression\": \"{$HOST_NAME:snmptrap[\\\"\\\\s$OID_ESC\\\\s\\\"].nodata(1d)}=0\",
+			\"priority\":\"3\"
+        }
+    ],
+\"auth\": \"$SID\",
+    \"id\": 1
+}
+" $API_JSONRPC | jq . && \
+echo
+} done
 
