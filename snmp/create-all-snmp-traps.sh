@@ -7,13 +7,13 @@
 ##############################################################
 
 WORKDIR=/usr/lib/zabbix/snmp
-MIB=SOCOMECUPS-MIB-5-01
+MIB=SOCOMECUPS-MIB-6-20
 ENTERPRISES=1.3.6.1.4.1.4555
 API_JSONRPC=https://zabbix.aigarskadikis.com/api_jsonrpc.php
 SID=$(cat ~/.sid)
 HOSTID=13563
-IP=10.100.0.5
-HOST_NAME="Net Vision v5"
+IP=10.100.0.6
+HOST_NAME="Net Vision v6"
 PORT=161
 # GET INTERFACE ID
 INTERFACEID=$(curl --silent --insecure --request POST --header 'Content-Type: application/json-rpc' --data "{\"jsonrpc\":\"2.0\",\"method\":\"hostinterface.get\",\"params\":{\"output\":[\"interfaceid\"],\"hostids\":\"$HOSTID\",\"filter\":{\"main\":\"1\",\"port\":\"161\"}},\"auth\":\"$SID\",\"id\":1}" $API_JSONRPC | jq -r .result[0].interfaceid)
