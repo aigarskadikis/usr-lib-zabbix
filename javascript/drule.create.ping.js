@@ -13,11 +13,11 @@ var json_rpc='https://z60.aigarskadikis.com:44360/api_jsonrpc.php';
 
 var apitoken='1ea44902a0bb98e95fb722d0b956fd373e755b48aa8e23dedf812d582594d1ca';
 
+var code='Security';
 var proxy_hostid=10597;
 
 var delay='1m';
 var response='';
-var code='codename';
 
 // iterate through file/array
 for(var l = 0; l < lines.length-1; l++) {
@@ -49,7 +49,7 @@ Zabbix.Log(3,'create='+create);
 // close event based on event id and report the answer
 if (create==1) {
 response = JSON.parse(req.Post(json_rpc,
-'{"jsonrpc":"2.0","method":"drule.create","params":{"name":"'+code+' '+subnet+' '+name+'","delay": "'+delay+'","proxy_hostid": "'+proxy_hostid+'","iprange":"'+iprange+'","dchecks":[{"type":"13","key_":"1.3.6.1.2.1.1.2.0","snmp_community":"","ports":"161","snmpv3_securityname":"{$SNMP:user}","snmpv3_securitylevel":"2","snmpv3_authpassphrase":"{$SNMP:sha}","snmpv3_privpassphrase":"{$SNMP:aes}","uniq":"0","snmpv3_authprotocol":"1","snmpv3_privprotocol":"1","snmpv3_contextname":"","host_source":"2","name_source":"0"},{"type":"13","key_":"1.3.6.1.2.1.1.5.0","snmp_community":"","ports":"161","snmpv3_securityname":"{$SNMP:user}","snmpv3_securitylevel":"2","snmpv3_authpassphrase":"{$SNMP:sha}","snmpv3_privpassphrase":"{$SNMP:aes}","uniq":"0","snmpv3_authprotocol":"1","snmpv3_privprotocol":"1","snmpv3_contextname":"","host_source":"2","name_source":"3"},{"type":"13","key_":"1.3.6.1.2.1.1.1.0","snmp_community":"","ports":"161","snmpv3_securityname":"{$SNMP:user}","snmpv3_securitylevel":"2","snmpv3_authpassphrase":"{$SNMP:sha}","snmpv3_privpassphrase":"{$SNMP:aes}","uniq":"0","snmpv3_authprotocol":"1","snmpv3_privprotocol":"1","snmpv3_contextname":"","host_source":"2","name_source":"0"}]},"auth":"'+apitoken+'","id":1}'
+'{"jsonrpc":"2.0","method":"drule.create","params":{"name":"'+code+' '+subnet+' '+name+'","delay":"'+delay+'","iprange":"'+iprange+'","proxy_hostid":"'+proxy_hostid+'","dchecks":[{"type":"12","key_":"","snmp_community":"","ports":"0","snmpv3_securityname":"","snmpv3_securitylevel":"0","snmpv3_authpassphrase":"","snmpv3_privpassphrase":"","uniq":"0","snmpv3_authprotocol":"0","snmpv3_privprotocol":"0","snmpv3_contextname":"","host_source":"2","name_source":"1"}]},"auth":"'+apitoken+'","id":1}'
 ));
 } else { response='[]'; }
 
